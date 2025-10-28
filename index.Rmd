@@ -30,6 +30,9 @@ I can recite SpongeBob’s ID number backwards!
 
 <img src="./image/HW4.2.jpg" style="width:75%">
 
+# Link to my Resume
+
+* [Resume](Resume.html)
 
 # My LinkedIn
 
