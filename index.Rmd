@@ -11,14 +11,28 @@ output:
 
 Hi I am chuhan Wang, trained in medicine at the undergraduate level and I’m now a Biostatistics graduate student at Columbia. 
 
+
 # My hobbies
 
 During my personal time, I love to go to concerts for fun. Here is a photo of my favorite band from Taiwan named Mayday.
 
-<img src="./image/HW4.1.jpg" style="width:75%">
+<img src="./image/HW4.1.jpg">
 
 From left to right in the picture, the five people are: guitarist, guitarist, lead vocalist, bassist, and drummer. 
 
 
-Besides, I’m an avid reader of novels and have even attended my favorite authors’ signing events.
+Besides, I’m an avid reader of novels and have even attended my favorite authors’ signing events. And my favorite science-fiction series is Three-Body trilogy. It opens with a secret signal from Cultural Revolution–era China that invites a precarious first contact, then expands through The Dark Forest and Death’s End into a centuries-long, cosmic chess match. I love it for its rigorous physics, eerie sense of scale, and ruthless logic—the way a single elegant idea can doom or save civilizations. It’s equal parts puzzle, prophecy, and awe, and it leaves my brain buzzing long after I finish.
 
+
+# A fun fact about me
+
+I can recite SpongeBob’s ID number backwards!
+
+<img src="./image/HW4.2.jpg" style="width:75%">
+
+
+# My LinkedIn
+
+Feel free to connect me to have a coffee-chat!
+
+* [LinkedIn](https://www.linkedin.com/feed/)
