@@ -1,0 +1,24 @@
+---
+title: "Chuhan's Website"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+---
+
+# My Brief Introduction
+
+Hi I am chuhan Wang, trained in medicine at the undergraduate level and I’m now a Biostatistics graduate student at Columbia. 
+
+# My hobbies
+
+During my personal time, I love to go to concerts for fun. Here is a photo of my favorite band from Taiwan named Mayday.
+
+<img src="./image/HW4.1.jpg" style="width:75%">
+
+From left to right in the picture, the five people are: guitarist, guitarist, lead vocalist, bassist, and drummer. 
+
+
+Besides, I’m an avid reader of novels and have even attended my favorite authors’ signing events.
+
