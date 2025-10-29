@@ -7,7 +7,7 @@ output:
     theme: cerulean
 ---
 
-# My Brief Introduction
+# Brief Introduction
 
 Hi I am chuhan Wang, trained in medicine at the undergraduate level and I’m now a Biostatistics graduate student at Columbia. 
 
@@ -39,3 +39,11 @@ I can recite SpongeBob’s ID number backwards!
 Feel free to connect me to have a coffee-chat!
 
 * [LinkedIn](https://www.linkedin.com/feed/)
+
+# Problem 2 Link
+
+* [Problem2_plots](Problem2_plots.html)
+
+
+
+

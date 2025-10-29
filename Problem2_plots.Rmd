@@ -1,0 +1,205 @@
+---
+title: "Problem2"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+Using NYC Restaurant Inspections data:
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(janitor)
+library(p8105.datasets)
+```
+
+```{r}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+get_all_inspections = function(url) {
+  
+  all_inspections = vector("list", length = 0)
+  
+  loop_index = 1
+  chunk_size = 50000
+  DO_NEXT = TRUE
+  
+  while (DO_NEXT) {
+    message("Getting data, page ", loop_index)
+    
+    all_inspections[[loop_index]] = 
+      GET(url,
+          query = list(`$order` = "zipcode",
+                       `$limit` = chunk_size,
+                       `$offset` = as.integer((loop_index - 1) * chunk_size)
+                       )
+          ) %>%
+      content("text") %>%
+      fromJSON() %>%
+      as_tibble()
+    
+    DO_NEXT = dim(all_inspections[[loop_index]])[1] == chunk_size
+    loop_index = loop_index + 1
+  }
+  
+  all_inspections
+  
+}
+
+url = "https://data.cityofnewyork.us/resource/43nn-pn8j.json"
+
+nyc_inspections = 
+  get_all_inspections(url) %>%
+  bind_rows() 
+```
+
+
+```{r}
+raw <- nyc_inspections |> 
+  janitor::clean_names()
+```
+
+```{r}
+nycr <- raw |>
+  transmute(
+    camis,
+    dba,
+    boro = na_if(boro, "0"),
+    zipcode,
+    cuisine_description,
+    inspection_date = ymd_hms(inspection_date),
+    score = suppressWarnings(as.numeric(score)),
+    grade = as.character(grade),
+    latitude  = suppressWarnings(as.numeric(latitude)),
+    longitude = suppressWarnings(as.numeric(longitude))
+  ) |>
+  filter(!is.na(inspection_date), inspection_date >= ymd("2009-01-01")) |>
+  mutate(
+    grade = factor(grade, levels = c("A","B","C")),
+    boro  = if_else(is.na(boro), "UNKNOWN", boro),
+    boro  = factor(boro, levels = c("MANHATTAN","BROOKLYN","QUEENS","BRONX","STATEN ISLAND","UNKNOWN"))
+  )
+```
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A: NYC Restaurant Grades
+
+```{r}
+latest <- nycr |>
+  dplyr::group_by(camis) |>
+  dplyr::slice_max(inspection_date, n = 1, with_ties = FALSE) |>
+  dplyr::ungroup()
+```
+
+```{r}
+plot_dat <- latest |>
+  dplyr::filter(
+    !is.na(latitude), !is.na(longitude),
+    dplyr::between(latitude, 40, 41),
+    dplyr::between(longitude, -75, -73)
+  )
+```
+
+```{r}
+plotly::plot_ly(
+  plot_dat,
+  x = ~longitude, y = ~latitude,
+  type = "scatter", mode = "markers",
+  color = ~grade, 
+  text  = ~paste0(dba, "<br>Grade: ", grade, "<br>Score: ", score),
+  marker = list(size = 6, opacity = 0.5)
+) |>
+  plotly::layout(
+    xaxis = list(title = "Longitude"),
+    yaxis = list(title = "Latitude"),
+    legend = list(title = list(text = "Grade"))
+  )
+```
+
+
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B: Inspection Scores by Cuisine (Top 10)
+
+```{r}
+library(viridisLite)
+library(forcats)
+```
+
+```{r}
+top10_cuisine <- latest |>
+  count(cuisine_description, sort = TRUE) |>
+  slice_head(n = 10) |>
+  pull(cuisine_description)
+
+box_cuisine_dat <- latest |>
+  filter(cuisine_description %in% top10_cuisine, !is.na(score)) |>
+  filter(between(score, 0, 60)) |>
+  mutate(cuisine = fct_reorder(cuisine_description, score, .fun = median))
+
+p_box_cuisine <- plot_ly(
+  box_cuisine_dat,
+  x = ~cuisine, y = ~score,
+  type = "box",
+  boxpoints = "outliers",
+  color = ~cuisine,
+  text = ~paste0(dba, "<br>Score: ", score, 
+                 "<br>Borough: ", boro)
+) |>
+  layout(
+    title = list(text = "Inspection Scores by Cuisine (Top 10)"),
+    xaxis = list(title = "Cuisine (Top 10, ordered by median)", tickangle = -45),
+    yaxis = list(title = "Inspection score (lower = better)"),
+    showlegend = FALSE
+  )
+
+p_box_cuisine
+```
+
+### Chart C: Number of NYC Restaurants by Borough
+
+```{r}
+latest <- nycr |>
+  group_by(camis) |>
+  slice_max(inspection_date, n = 1, with_ties = FALSE) |>
+  ungroup()
+
+plot_dat <- latest |>
+  select(-boro) |>
+  left_join(raw |> 
+              transmute(camis, boro_raw = boro), by = "camis") |>
+  mutate(
+    boro = stringr::str_to_upper(stringr::str_trim(boro_raw)),
+    boro = dplyr::case_when(
+      boro %in% c("MANHATTAN","BROOKLYN","QUEENS","BRONX","STATEN ISLAND") ~ boro,
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(boro)) |>
+  count(boro, name = "n", sort = TRUE) |>
+  mutate(boro = forcats::fct_reorder(boro, n))
+
+pal <- viridisLite::viridis(nrow(plot_dat))
+
+plot_ly(plot_dat, x=~n, y=~boro, type="bar", orientation="h",
+        color=~boro, colors=pal) |>
+  layout(title=list(text="Restaurant Count by Borough"),
+         xaxis=list(title="Number of restaurants"),
+         yaxis=list(title="Borough"),
+         showlegend=TRUE, legend=list(x=1.02,y=1), margin=list(r=160))
+```
+

@@ -11,5 +11,7 @@ navbar:
       href: https://github.com/chuhan-wch
     - text: "LinkedIn"
       href: https://www.linkedin.com/feed/
+    - text: "Problem2_plots"
+      href: Problem2_plots.html
 output:
   html_document
